@@ -1,11 +1,12 @@
 #!/usr/bin/python
 import sys
 import math
-from cache import read_c, write_c
+import cache
+from cache import Cache
 
 class processor(object):
 	def __init__(self):
-		def read(read_index, tag, read_indexL3, tagL3, cache_m, cache_s, cacheL3):
+		def read_p(read_index, tag, read_indexL3, tagL3, cache_m, cache_s, cacheL3):
 			tag_readed,state = cache_m.read_c(read_index)
 			tag_readed_s,state_s = cache_s.read_c(read_index)
 			tag_readedL3,state_L3 = cacheL3.read_c(read_indexL3)
@@ -50,7 +51,7 @@ class processor(object):
 					state = 1
 					return 'miss_local', 'miss_global', state
 
-		def write(read_index, tag, read_indexL3, tagL3, cache_m, cache_s, cacheL3):
+		def write_p(read_index, tag, read_indexL3, tagL3, cache_m, cache_s, cacheL3):
 			local,glob,state = read(read_index, tag, read_indexL3, tagL3, cache_m, cache_s, cacheL3)
 			if(state == 0):
 				cache_m.write_c(read_index, tag, 0)

@@ -1,9 +1,8 @@
 #!/usr/bin/python
 import sys
 import math
-import cache
-import processor
-from processor import read, write
+from processor import processor
+from cache import Cache
 
 #Processors 1 and 2
 P1 = processor()
@@ -49,8 +48,8 @@ for line in open('aligned.trace'):
 	for i in range (indexL3): #delete the index from the read
 		tagL3 = (tagL3 / 2) #now we have only the tag in $tag
 	if(number_line%2 == 0):
-		if(instruction == L):
-			local_L2,glob,state = P2.read(read_index, tag, read_indexL3, tagL3, L2, L1, L3)
+		if(instruction == 'L'):
+			local_L2,glob,state = P2.read_p(read_index, tag, read_indexL3, tagL3, L2, L1, L3)
 			if(local_L2 == 'miss_local'):
 				miss_local_L2 = miss_local_L2 + 1
 			else:
@@ -60,7 +59,7 @@ for line in open('aligned.trace'):
 			else:
 				hit = hit + 1
 		else:
-			local_L2,glob,state = P2.write(read_index, tag, read_indexL3, tagL3, L2, L1, L3)
+			local_L2,glob,state = P2.write_p(read_index, tag, read_indexL3, tagL3, L2, L1, L3)
 			if(local_L2 == 'miss_local'):
 				miss_local_L2 = miss_local_L2 + 1
 			else:
@@ -70,8 +69,8 @@ for line in open('aligned.trace'):
 			else:
 				hit = hit + 1
 	else:
-		if(instruction == L):
-			local_L1,glob,state = P1.read(read_index, tag, read_indexL3, tagL3, L1, L2, L3)
+		if(instruction == 'L'):
+			local_L1,glob,state = P1.read_p(read_index, tag, read_indexL3, tagL3, L1, L2, L3)
 			if(local_L1 == 'miss_local'):
 				miss_local_L1 = miss_local_L1 + 1
 			else:
@@ -81,7 +80,7 @@ for line in open('aligned.trace'):
 			else:
 				hit = hit + 1
 		else:
-			local_L1,glob,state = P1.write(read_index, tag, read_indexL3, tagL3, L1, L2, L3)
+			local_L1,glob,state = P1.write_p(read_index, tag, read_indexL3, tagL3, L1, L2, L3)
 			if(local_L1 == 'miss_local'):
 				miss_local_L1 = miss_local_L1 + 1
 			else:
