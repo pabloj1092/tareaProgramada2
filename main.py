@@ -1,4 +1,5 @@
 #!/usr/bin/python
+
 import sys
 import math
 from processor import processor
@@ -35,9 +36,11 @@ for x in range(indexL3):
 	maskL3 = 1  + maskL3*2
 
 line_number = 1
-for line in open('aligned.trace'):
-	data = line.split()
-	instruction = line.split(' ')[1]
+
+file = open('aligned.trace', 'r')
+for line in file:
+	row = line.split()
+	data, instruction = row
 	tag = int(data[0], 16) #still not the 
 	read_index = tag & mask
 	for i in range (index):
@@ -89,3 +92,4 @@ for line in open('aligned.trace'):
 			else:
 				hit = hit + 1
 	line_number = line_number +1
+print miss_local_L1, miss_local_L2, miss, hit
