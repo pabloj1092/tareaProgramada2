@@ -14,12 +14,12 @@ class Cache(object):
 			print "Invalid block size, use a base 2 number"
 			sys.exit()
 		b_num = c_size/b_size
-		self.cache = [[0 for x in range(b_num)] for x in range(0,2)]
+		self.cache = [[0 for x in range(2)] for x in range(b_num)]
 
 	def read_c(self, read_index):
 		data_cache = self.cache[read_index][0]
 		state_c = self.cache[read_index][1]
 		return data_cache,state_c
 	def write_c(self, read_index, tag, state_c):
-		self.cache[read_index][0] = tag
+		self.cachep[read_index][0] = tag
 		self.cache[read_index][1] = state_c

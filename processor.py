@@ -63,4 +63,4 @@ class processor(object):
 			cache_m.write_c(read_index, tag, 0)
 			cache_s.write_c(read_index, tag, 3)
 			cacheL3.write_c(read_indexL3, tagL3, 3)
-		return local,glob
+		return local,glob,state
