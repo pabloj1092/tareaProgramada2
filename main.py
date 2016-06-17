@@ -20,12 +20,12 @@ L3 = Cache(64)
 index = int(math.log(float(L_size/b_size),2))
 indexL3 = int(math.log(float(L3_size/b_size),2))
 
-miss_local_L1 = 0
-miss_local_L2 = 0
-hit_local_L1 = 0
-hit_local_L2 = 0
-hit = 0
-miss = 0
+miss_L1 = 0
+miss_L2 = 0
+hit_L1 = 0
+hit_L2 = 0
+hit_L3 = 0
+miss_L3 = 0
 mask = 0
 maskL3 = 0
 
@@ -41,7 +41,7 @@ file = open('aligned.trace', 'r')
 for line in file:
 	row = line.split()
 	data, instruction = row
-	tag = int(data[0], 16) #still not the 
+	tag = int(row[0], 16) #still not the 
 	read_index = tag & mask
 	for i in range (index):
 		tag = (tag / 2) #now we have only the tag in $tag
@@ -51,45 +51,74 @@ for line in file:
 		tagL3 = (tagL3 / 2) #now we have only the tag in $tag
 	if(line_number%2 == 0):
 		if(instruction == 'L'):
-			local_L2,glob,state = P2.read_p(read_index, tag, read_indexL3, tagL3, L2, L1, L3)
-			if(local_L2 == 'miss_local'):
-				miss_local_L2 = miss_local_L2 + 1
+			local,other,state = P2.read_p(read_index, tag, read_indexL3, tagL3, L2, L1, L3)
+			if((local == 'hit_local') and (other == 'N/A')):
+				hit_L2 = hit_L2 + 1
+			elif((local == 'miss_local') and (other == 'hit_s')):
+				miss_L2 = miss_L2 + 1
+				hit_L1 = hit_L1 + 1
+			elif((local == 'miss_local') and (other == 'hit_L3')):
+				miss_L2 = miss_L2 + 1
+				hit_L3 = hit_L3 + 1
 			else:
-				hit_local_L2 = hit_local_L2 + 1
-			if(glob == 'miss_global'):
-				miss = miss + 1
-			else:
-				hit = hit + 1
+				miss_L1 = miss_L1 + 1
+				miss_L2 = miss_L2 + 1
+				miss_L3 = miss_L3 + 1
 		else:
-			local_L2,glob,state = P2.write_p(read_index, tag, read_indexL3, tagL3, L2, L1, L3)
-			if(local_L2 == 'miss_local'):
-				miss_local_L2 = miss_local_L2 + 1
+			local,other,state = P2.write_p(read_index, tag, read_indexL3, tagL3, L2, L1, L3)
+			if((local == 'hit_local') and (other == 'N/A')):
+				hit_L2 = hit_L2 + 1
+			elif((local == 'miss_local') and (other == 'hit_s')):
+				miss_L2 = miss_L2 + 1
+				hit_L1 = hit_L1 + 1
+			elif((local == 'miss_local') and (other == 'hit_L3')):
+				miss_L2 = miss_L2 + 1
+				hit_L3 = hit_L3 + 1
 			else:
-				hit_local_L2 = hit_local_L2 + 1
-			if(glob == 'miss_global'):
-				miss = miss + 1
-			else:
-				hit = hit + 1
+				miss_L1 = miss_L1 + 1
+				miss_L2 = miss_L2 + 1
+				miss_L3 = miss_L3 + 1
 	else:
 		if(instruction == 'L'):
-			local_L1,glob,state = P1.read_p(read_index, tag, read_indexL3, tagL3, L1, L2, L3)
-			if(local_L1 == 'miss_local'):
-				miss_local_L1 = miss_local_L1 + 1
+			local,other,state = P1.read_p(read_index, tag, read_indexL3, tagL3, L1, L2, L3)
+			if((local == 'hit_local') and (other == 'N/A')):
+				hit_L1 = hit_L1 + 1
+			elif((local == 'miss_local') and (other == 'hit_s')):
+				miss_L1 = miss_L1 + 1
+				hit_L2 = hit_L2 + 1
+			elif((local == 'miss_local') and (other == 'hit_L3')):
+				miss_L1 = miss_L1 + 1
+				hit_L3 = hit_L3 + 1
 			else:
-				hit_local_L1 = hit_local_L1 + 1
-			if(glob == 'miss_global'):
-				miss = miss + 1
-			else:
-				hit = hit + 1
+				miss_L1 = miss_L1 + 1
+				miss_L2 = miss_L2 + 1
+				miss_L3 = miss_L3 + 1
 		else:
-			local_L1,glob,state = P1.write_p(read_index, tag, read_indexL3, tagL3, L1, L2, L3)
-			if(local_L1 == 'miss_local'):
-				miss_local_L1 = miss_local_L1 + 1
+			local,other,state = P1.write_p(read_index, tag, read_indexL3, tagL3, L1, L2, L3)
+			if((local == 'hit_local') and (other == 'N/A')):
+				hit_L1 = hit_L1 + 1
+			elif((local == 'miss_local') and (other == 'hit_s')):
+				miss_L1 = miss_L1 + 1
+				hit_L2 = hit_L2 + 1
+			elif((local == 'miss_local') and (other == 'hit_L3')):
+				miss_L1 = miss_L1 + 1
+				hit_L3 = hit_L3 + 1
 			else:
-				hit_local_L1 = hit_local_L1 + 1
-			if(glob == 'miss_global'):
-				miss = miss + 1
-			else:
-				hit = hit + 1
+				miss_L1 = miss_L1 + 1
+				miss_L2 = miss_L2 + 1
+				miss_L3 = miss_L3 + 1
 	line_number = line_number +1
-print miss_local_L1, miss_local_L2, miss, hit
+k = line_number
+p_miss_L1 = (miss_L1*100)/(k)
+p_hit_L1 = (hit_L1*100)/(k)
+p_miss_L2 = (miss_L2*100)/(k)
+p_hit_L2 = (hit_L2*100)/(k)
+p_miss_L3 = (miss_L3*100)/(k)
+p_hit_L3 = (hit_L3*100)/(k)
+
+print 'Miss rate L1 %d' % p_miss_L1
+print 'Hit rate L1 %d' % p_hit_L1
+print 'Miss rate L2 %d' % p_miss_L2
+print 'Hit rate L2 %d' % p_hit_L2
+print 'Miss rate L3 %d' % p_miss_L3
+print 'Hit rate L3 %d' % p_hit_L3
