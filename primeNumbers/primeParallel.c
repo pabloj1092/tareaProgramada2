@@ -24,12 +24,15 @@ int main(int argc, char **argv){
   ierr = MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
   int lastPrime=48611, index[lastPrime], numbers[lastPrime],index2[lastPrime], numbers2[lastPrime], prime, searchingPrime;
   num_rows=lastPrime;
+  // main process
   if(my_id == root_process) {
     avg_rows_per_process = lastPrime / num_procs;
+    // Create an array with all the numbers
     for (int i=0; i<lastPrime; i++){
        index[i] = 1;
        numbers[i] = i;
      }
+    //  Split the array in all the process
      for(an_id = 1; an_id < num_procs; an_id++) {
         start_row = an_id*avg_rows_per_process + 1;
         end_row   = (an_id + 1)*avg_rows_per_process;
@@ -43,6 +46,7 @@ int main(int argc, char **argv){
               ierr = MPI_Send( &numbers[start_row], num_rows_to_send, MPI_INT,
                     an_id, send_data_tag, MPI_COMM_WORLD);
    }
+  //  Run Criba in the main process, first segment of the array
    for (int i=2; i<avg_rows_per_process+1; i++){
      if (index[i]==1){
          prime = numbers[i];
@@ -55,6 +59,7 @@ int main(int argc, char **argv){
          }
       }
     }
+    // Find the firs begin time and the las end time
     int beginTime = begin;
     for(an_id = 1; an_id < num_procs; an_id++) {
        ierr = MPI_Recv( &begin, 1, MPI_INT, MPI_ANY_SOURCE,
@@ -74,6 +79,7 @@ int main(int argc, char **argv){
     timeSpend = (double)(endTime - beginTime)/CLOCKS_PER_SEC;
     printf("time %f\n", timeSpend);
   }
+  // Other process
   else{
     ierr = MPI_Recv( &num_rows_to_receive, 1, MPI_INT,
           root_process, send_data_tag, MPI_COMM_WORLD, &status);
@@ -81,6 +87,7 @@ int main(int argc, char **argv){
           root_process, send_data_tag, MPI_COMM_WORLD, &status);
     ierr = MPI_Recv( &numbers2, num_rows_to_receive, MPI_INT,
           root_process, send_data_tag, MPI_COMM_WORLD, &status);
+    // Initilize the process and running the Criba alg
     int primeFinded = 0;
     for (int i=0; i<num_rows_to_receive; i++){
       if (index2[i]==1){
@@ -101,6 +108,7 @@ int main(int argc, char **argv){
         }
       }
     }
+    // Sending the process times
     end2 = clock();
     ierr = MPI_Send( &end2, 1, MPI_INT, root_process,
           return_data_tag, MPI_COMM_WORLD);
