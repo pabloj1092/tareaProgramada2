@@ -14,53 +14,40 @@ class processor(object):
 		####### MESI PROTOCOL ########
 		##### M=0, E=1, S=2, I=3 #####
 		##############################
-		if(tag_readed == tag and ((state == 0) or (state == 1) or (state == 2))):
-			return 'hit_local','hit_global', state
-		elif(tag_readed == tag and state == 3):
-			if(tag_readed_s == tag and ((state_s == 0) or (state_s == 1) or (state_s == 2))):
-				cache_m[read_index][0] = tag_readed_s
-				cache_m[read_index][1] = 2
-				cache_s[read_index][1] = 2
-				state = 2
-				return 'miss_local','hit_global', state
-			else:
-				if(tag_readedL3 == tagL3 and ((state_L3 == 0) or (state_L3 == 1) or (state_L3 == 2))):
-					cache_m[read_index][0] = tag
-					cache_m[read_index][1] = 1
-					cacheL3[read_indexL3][1] = 1
-					state = 1
-					return 'miss_local','hit_global', state
-				else:
-					cache_m[read_index][0] = tag
-					cache_m[read_index][1] = 1
-					cacheL3[read_indexL3][0] = tagL3
-					cacheL3[read_indexL3][1] = 1
-					state = 1
-					return 'miss_local', 'miss_global', state
-		else:
-			if(tag_readedL3 == tagL3 and ((state_L3 == 0) or (state_L3 == 1) or (state_L3 == 2))):
-					cache_m[read_index][0] = tag
-					cache_m[read_index][1] = 1
-					cacheL3[read_indexL3][1] = 1
-					state = 1
-					return 'miss_local', 'hit_global', state
-			else:
-				cache_m[read_index][0] = tag
-				cache_m[read_index][1] = 1
-				cacheL3[read_indexL3][0] = tagL3
-				cacheL3[read_indexL3][1] = 1
-				state = 1
-				return 'miss_local', 'miss_global', state
+		if((tag_readed == tag) and ((state == 'M') or (state == 'E') or (state == 'S'))): #Hit in local cache
+			return 'hit_local','N/A', state
+		#elif(tag_readed == tag and state == 'I'): 
+		else: #Search in the other processor cache
+			if((tag_readed_s == tag) and ((state_s == 'M') or (state_s == 'E') or (state_s == 'S'))): #Hit in parallel cache
+				cache_m.write_c(read_index, tag, 'S')
+				cache_s.write_c(read_index, tag, 'S')
+				state = 'S'
+				return 'miss_local','hit_s', state
+			else: #Search in L3 cache
+				if((tag_readedL3 == tagL3) and ((state_L3 == 'M') or (state_L3 == 'E') or (state_L3 == 'S'))): #Hit in L3 cache
+					cache_m.write_c(read_index, tag,  'E')
+					cache_s.write_c(read_index, tag, 'I')
+					cacheL3.write_c(read_indexL3, tagL3, 'E')
+					state = 'E'
+					return 'miss_local','hit_L3', state
+				else: #Miss in L3 cache
+					cache_m.write_c(read_index, tag, 'E')
+					cache_s.write_c(read_index, tag, 'I')
+					cacheL3.write_c(read_indexL3, tagL3, 'E')
+					
+					state = 'E'
+					return 'miss_local', 'miss_L3', state
 
 	def write_p(self, read_index, tag, read_indexL3, tagL3, cache_m, cache_s, cacheL3):
-		local,glob,state = self.read_p(read_index, tag, read_indexL3, tagL3, cache_m, cache_s, cacheL3)
-		if(state == 0):
-			cache_m.write_c(read_index, tag, 0)
-		elif(state == 1):
-			cache_m.write_c(read_index, tag, 0)
-			cacheL3.write_c(read_indexL3, tagL3, 3)
-		else: #(state == 2):
-			cache_m.write_c(read_index, tag, 0)
-			cache_s.write_c(read_index, tag, 3)
-			cacheL3.write_c(read_indexL3, tagL3, 3)
-		return local,glob
+		local,other,state = self.read_p(read_index, tag, read_indexL3, tagL3, cache_m, cache_s, cacheL3)
+		if(state == 'M'):
+			cache_m.write_c(read_index, tag, 'M')
+		elif(state == 'E'):
+			cache_m.write_c(read_index, tag, 'M')
+			cache_s.write_c(read_index, tag, 'I')
+			cacheL3.write_c(read_indexL3, tagL3, 'I')
+		elif(state == 'S'):
+			cache_m.write_c(read_index, tag, 'M')
+			cache_s.write_c(read_index, tag, 'I')
+			cacheL3.write_c(read_indexL3, tagL3, 'I')
+		return local,other,state
