@@ -4,6 +4,8 @@ import sys
 import math
 from processor import processor
 from cache import Cache
+file1 = open('log_p1', 'w')
+file2 = open('log_p2', 'w')
 
 #Processors 1 and 2
 P1 = processor()
@@ -20,12 +22,6 @@ L3 = Cache(64)
 index = int(math.log(float(L_size/b_size),2))
 indexL3 = int(math.log(float(L3_size/b_size),2))
 
-miss_L1 = 0
-miss_L2 = 0
-hit_L1 = 0
-hit_L2 = 0
-hit_L3 = 0
-miss_L3 = 0
 mask = 0
 maskL3 = 0
 
@@ -52,73 +48,25 @@ for line in file:
 	if(line_number%2 == 0):
 		if(instruction == 'L'):
 			local,other,state = P2.read_p(read_index, tag, read_indexL3, tagL3, L2, L1, L3)
-			if((local == 'hit_local') and (other == 'N/A')):
-				hit_L2 = hit_L2 + 1
-			elif((local == 'miss_local') and (other == 'hit_s')):
-				miss_L2 = miss_L2 + 1
-				hit_L1 = hit_L1 + 1
-			elif((local == 'miss_local') and (other == 'hit_L3')):
-				miss_L2 = miss_L2 + 1
-				hit_L3 = hit_L3 + 1
-			else:
-				miss_L1 = miss_L1 + 1
-				miss_L2 = miss_L2 + 1
-				miss_L3 = miss_L3 + 1
 		else:
 			local,other,state = P2.write_p(read_index, tag, read_indexL3, tagL3, L2, L1, L3)
-			if((local == 'hit_local') and (other == 'N/A')):
-				hit_L2 = hit_L2 + 1
-			elif((local == 'miss_local') and (other == 'hit_s')):
-				miss_L2 = miss_L2 + 1
-				hit_L1 = hit_L1 + 1
-			elif((local == 'miss_local') and (other == 'hit_L3')):
-				miss_L2 = miss_L2 + 1
-				hit_L3 = hit_L3 + 1
-			else:
-				miss_L1 = miss_L1 + 1
-				miss_L2 = miss_L2 + 1
-				miss_L3 = miss_L3 + 1
+
+		if(line_number >= 980):
+			state_cache1 = L1.cache[read_index][1]
+			state_cache2 = L2.cache[read_index][1]
+			file2.write("Processor1: " + state_cache1 + " " + "Processor2: " + state_cache2 + " " + str(line_number))
+			file2.write("\n")
 	else:
 		if(instruction == 'L'):
 			local,other,state = P1.read_p(read_index, tag, read_indexL3, tagL3, L1, L2, L3)
-			if((local == 'hit_local') and (other == 'N/A')):
-				hit_L1 = hit_L1 + 1
-			elif((local == 'miss_local') and (other == 'hit_s')):
-				miss_L1 = miss_L1 + 1
-				hit_L2 = hit_L2 + 1
-			elif((local == 'miss_local') and (other == 'hit_L3')):
-				miss_L1 = miss_L1 + 1
-				hit_L3 = hit_L3 + 1
-			else:
-				miss_L1 = miss_L1 + 1
-				miss_L2 = miss_L2 + 1
-				miss_L3 = miss_L3 + 1
 		else:
 			local,other,state = P1.write_p(read_index, tag, read_indexL3, tagL3, L1, L2, L3)
-			if((local == 'hit_local') and (other == 'N/A')):
-				hit_L1 = hit_L1 + 1
-			elif((local == 'miss_local') and (other == 'hit_s')):
-				miss_L1 = miss_L1 + 1
-				hit_L2 = hit_L2 + 1
-			elif((local == 'miss_local') and (other == 'hit_L3')):
-				miss_L1 = miss_L1 + 1
-				hit_L3 = hit_L3 + 1
-			else:
-				miss_L1 = miss_L1 + 1
-				miss_L2 = miss_L2 + 1
-				miss_L3 = miss_L3 + 1
-	line_number = line_number +1
-k = line_number
-p_miss_L1 = (miss_L1*100)/(k)
-p_hit_L1 = (hit_L1*100)/(k)
-p_miss_L2 = (miss_L2*100)/(k)
-p_hit_L2 = (hit_L2*100)/(k)
-p_miss_L3 = (miss_L3*100)/(k)
-p_hit_L3 = (hit_L3*100)/(k)
-
-print 'Miss rate L1 %d' % p_miss_L1
-print 'Hit rate L1 %d' % p_hit_L1
-print 'Miss rate L2 %d' % p_miss_L2
-print 'Hit rate L2 %d' % p_hit_L2
-print 'Miss rate L3 %d' % p_miss_L3
-print 'Hit rate L3 %d' % p_hit_L3
+		if(line_number >= 980):
+			state_cache1 = L1.cache[read_index][1]
+			state_cache2 = L2.cache[read_index][1]
+			file1.write("Processor1: " + state_cache1 + " " + "Processor2: " + state_cache2 + " " + str(line_number))
+			file1.write("\n")
+	line_number = line_number + 1
+print line_number
+file1.close()
+file2.close()
