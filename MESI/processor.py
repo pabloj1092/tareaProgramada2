@@ -17,39 +17,26 @@ class processor(object):
 		if((tag_readed == tag) and ((state == 'M') or (state == 'E') or (state == 'S'))): #Hit in local cache
 			return 'hit_local','N/A', state
 		#elif(tag_readed == tag and state == 'I'): 
-		else: #Miss in local cache
+		else: #Search in the other processor cache
 			if((tag_readed_s == tag) and ((state_s == 'M') or (state_s == 'E') or (state_s == 'S'))): #Hit in parallel cache
 				cache_m.write_c(read_index, tag, 'S')
 				cache_s.write_c(read_index, tag, 'S')
 				state = 'S'
 				return 'miss_local','hit_s', state
-			else: #Miss in parallel cache
+			else: #Search in L3 cache
 				if((tag_readedL3 == tagL3) and ((state_L3 == 'M') or (state_L3 == 'E') or (state_L3 == 'S'))): #Hit in L3 cache
 					cache_m.write_c(read_index, tag,  'E')
+					cache_s.write_c(read_index, tag, 'I')
 					cacheL3.write_c(read_indexL3, tagL3, 'E')
 					state = 'E'
 					return 'miss_local','hit_L3', state
 				else: #Miss in L3 cache
 					cache_m.write_c(read_index, tag, 'E')
+					cache_s.write_c(read_index, tag, 'I')
 					cacheL3.write_c(read_indexL3, tagL3, 'E')
+					
 					state = 'E'
 					return 'miss_local', 'miss_L3', state
-		'''
-		else:
-			if(tag_readedL3 == tagL3 and ((state_L3 == 'M') or (state_L3 == 'E') or (state_L3 == 'S'))):
-					cache_m[read_index][0] = tag
-					cache_m[read_index][1] = 'E'
-					cacheL3[read_indexL3][1] = 'E'
-					state = 'E'
-					return 'miss_local', 'hit_global', state
-			else:
-				cache_m[read_index][0] = tag
-				cache_m[read_index][1] = 'E'
-				cacheL3[read_indexL3][0] = tagL3
-				cacheL3[read_indexL3][1] = 'E'
-				state = 'E'
-				return 'miss_local', 'miss_global', state
-		'''
 
 	def write_p(self, read_index, tag, read_indexL3, tagL3, cache_m, cache_s, cacheL3):
 		local,other,state = self.read_p(read_index, tag, read_indexL3, tagL3, cache_m, cache_s, cacheL3)
@@ -57,9 +44,10 @@ class processor(object):
 			cache_m.write_c(read_index, tag, 'M')
 		elif(state == 'E'):
 			cache_m.write_c(read_index, tag, 'M')
+			cache_s.write_c(read_index, tag, 'I')
 			cacheL3.write_c(read_indexL3, tagL3, 'I')
-		else:
+		elif(state == 'S'):
 			cache_m.write_c(read_index, tag, 'M')
 			cache_s.write_c(read_index, tag, 'I')
-			cacheL3.write_c(read_index, tag, 'I')
+			cacheL3.write_c(read_indexL3, tagL3, 'I')
 		return local,other,state
