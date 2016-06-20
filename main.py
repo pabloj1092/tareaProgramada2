@@ -51,7 +51,7 @@ for line in file:
 		else:
 			local,other,state = P2.write_p(read_index, tag, read_indexL3, tagL3, L2, L1, L3)
 
-		if(line_number >= 980):
+		if(line_number >= 49642108):
 			state_cache1 = L1.cache[read_index][1]
 			state_cache2 = L2.cache[read_index][1]
 			file2.write("Processor1: " + state_cache1 + " " + "Processor2: " + state_cache2)
@@ -60,8 +60,8 @@ for line in file:
 		if(instruction == 'L'):
 			local,other,state = P1.read_p(read_index, tag, read_indexL3, tagL3, L1, L2, L3)
 		else:
-			local,other,state = P1.write_p(read_index, tag, read_indexL3, tagL3, L1, L2, L3)
-		if(line_number >= 980):
+			local,other,state = P1.write_p(r49642128ead_index, tag, read_indexL3, tagL3, L1, L2, L3)
+		if(line_number >= 496421208):
 			state_cache1 = L1.cache[read_index][1]
 			state_cache2 = L2.cache[read_index][1]
 			file1.write("Processor1: " + state_cache1 + " " + "Processor2: " + state_cache2)
